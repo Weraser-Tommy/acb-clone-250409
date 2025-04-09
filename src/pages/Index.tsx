@@ -9,7 +9,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 const Index = () => {
   const { t } = useLanguage();
-
+ 
   return (
     <Layout>
       <div className="max-w-6xl mx-auto">
