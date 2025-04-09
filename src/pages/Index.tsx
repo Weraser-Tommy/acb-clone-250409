@@ -7,9 +7,9 @@ import { ArrowRight, FileSpreadsheet, Calculator, FileCheck, Boxes } from "lucid
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-const Index = () => {
+const Index = () => { 
   const { t } = useLanguage();
- 
+
   return (
     <Layout>
       <div className="max-w-6xl mx-auto">
