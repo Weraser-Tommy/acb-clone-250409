@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -6,12 +5,13 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { FileText, Calculator, Upload, Loader2 } from "lucide-react";
+import { FileText, Calculator, Upload, Loader2, X } from "lucide-react";
 import SavedSimulationModal from "./SavedSimulationModal";
 import { CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Command } from "@/components/ui/command";
 import { cn, getCountryName, getSortedCountries } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Link } from 'react-router-dom';
 
 interface SimulationInputProps {
   onNext: (data: any) => void;
@@ -240,27 +240,22 @@ const SimulationInput: React.FC<SimulationInputProps> = ({
 
   const countries = getSortedCountries(countriesRaw);
 
-  // Function to simulate AI extraction of product name from uploaded document
   const extractProductNameFromDocument = async (uploadedFile: File): Promise<string> => {
-    // In a real implementation, this would call an AI service to extract product name
-    // For now, we'll simulate a delay and return a placeholder result based on the file name
     return new Promise((resolve) => {
       setTimeout(() => {
-        // Remove file extension and replace underscores/dashes with spaces
         const nameFromFile = uploadedFile.name
           .split('.')[0]
           .replace(/[_-]/g, ' ')
           .replace(/([A-Z])/g, ' $1')
           .trim();
           
-        // Capitalize first letter of each word
         const formattedName = nameFromFile
           .split(' ')
           .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
           .join(' ');
           
         resolve(formattedName);
-      }, 1500); // Simulate 1.5s delay for AI processing
+      }, 1500);
     });
   };
 
@@ -276,7 +271,7 @@ const SimulationInput: React.FC<SimulationInputProps> = ({
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
       ];
-      const maxSize = 10 * 1024 * 1024; // 10MB
+      const maxSize = 10 * 1024 * 1024;
 
       if (!allowedTypes.includes(selectedFile.type)) {
         toast({
@@ -298,7 +293,6 @@ const SimulationInput: React.FC<SimulationInputProps> = ({
 
       setFile(selectedFile);
       
-      // Extract product name from the uploaded document
       try {
         setExtractingProductName(true);
         const extractedName = await extractProductNameFromDocument(selectedFile);
@@ -346,7 +340,7 @@ const SimulationInput: React.FC<SimulationInputProps> = ({
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
       ];
-      const maxSize = 10 * 1024 * 1024; // 10MB
+      const maxSize = 10 * 1024 * 1024;
 
       if (!allowedTypes.includes(droppedFile.type)) {
         toast({
@@ -368,7 +362,6 @@ const SimulationInput: React.FC<SimulationInputProps> = ({
 
       setFile(droppedFile);
       
-      // Extract product name from the uploaded document
       try {
         setExtractingProductName(true);
         const extractedName = await extractProductNameFromDocument(droppedFile);
@@ -617,7 +610,17 @@ const SimulationInput: React.FC<SimulationInputProps> = ({
           </div>
         </div>
 
-        <div className="mt-8 flex justify-end">
+        <div className="mt-8 flex justify-between">
+          <Link to="/">
+            <Button 
+              type="button" 
+              variant="outline" 
+              className="flex items-center gap-2"
+            >
+              <X className="h-4 w-4" />
+              {t("simulation.input.cancel") || "취소"}
+            </Button>
+          </Link>
           <Button 
             type="submit" 
             size="lg" 
