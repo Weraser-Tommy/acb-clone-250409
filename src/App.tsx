@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import SimulationPage from "./pages/SimulationPage";
 import DeclarationPage from "./pages/DeclarationPage";
 import CalculatorPage from "./pages/CalculatorPage";
+import CompletedDeclarationsPage from "./pages/CompletedDeclarationsPage";
 import NotFound from "./pages/NotFound";
 
 // Create a client
@@ -28,6 +29,7 @@ const App = () => {
                 <Route path="/" element={<Index />} />
                 <Route path="/simulation" element={<SimulationPage />} />
                 <Route path="/declaration" element={<DeclarationPage />} />
+                <Route path="/completed-declarations" element={<CompletedDeclarationsPage />} />
                 <Route path="/calculator" element={<CalculatorPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />

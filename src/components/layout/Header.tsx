@@ -19,6 +19,9 @@ const Header: React.FC = () => {
             <Link to="/declaration" className="hover:text-accent transition-colors">
               {t("declaration")}
             </Link>
+            <Link to="/completed-declarations" className="hover:text-accent transition-colors">
+              {t("completedDeclarations") || "신고 완료 목록"}
+            </Link>
             <Link to="/calculator" className="hover:text-accent transition-colors">
               {t("calculator")}
             </Link>
