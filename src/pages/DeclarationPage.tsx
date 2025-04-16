@@ -63,6 +63,7 @@ export interface DeclarationFormData {
   freightAmount?: string;
   insuranceAmount?: string;
   
+  // Existing fields
   declarerName: string;
   declarerCode: string;
   customsOffice?: string;
@@ -114,6 +115,42 @@ export interface DeclarationFormData {
   portDischarge?: string;
   containerNumber?: string;
   sealNumber?: string;
+  
+  // Missing fields for DeclarationCertificate
+  customsOfficeDept?: string;
+  warehouseLocation?: string;
+  declarantName?: string;
+  declarantCode?: string;
+  exportDeclarationType?: string;
+  manufacturer?: string;
+  manufacturerCode?: string;
+  csTypeExport?: string;
+  shipperName?: string;
+  buyerName?: string;
+  consigneeName?: string;
+  buyerCode?: string;
+  destinationCountry?: string;
+  loadingCountryExport?: string;
+  itemLocation?: string;
+  refundApplication?: string;
+  expectedBondedArea?: string;
+  itemNameEng?: string;
+  tradeNameEng?: string;
+  modelSpecEng?: string;
+  exportQuantity?: string;
+  exportUnit?: string;
+  unitPrice?: string;
+  amountExport?: string;
+  netWeightExport?: string;
+  totalDeclaredPrice?: string;
+  invoiceNumber?: string;
+  originCriteriaExport?: string;
+  totalWeightExport?: string;
+  totalPackagesExport?: string;
+  
+  // Additional fields for DeclarationForm
+  exportAgent?: string;
+  exportAgentCode?: string;
 }
 
 export interface SavedDeclaration {

@@ -37,8 +37,19 @@ const DeclarationDetails: React.FC<DeclarationDetailsProps> = ({
   if (!declaration) return null;
   
   const getStatusBadge = (status: string) => {
+    let badgeClass = "bg-green-500 hover:bg-green-600";
+    
+    // Adjust color based on status
+    if (status.includes("취하") || status.includes("각하")) {
+      badgeClass = "bg-red-500 hover:bg-red-600";
+    } else if (status.includes("대기") || status.includes("접수")) {
+      badgeClass = "bg-blue-500 hover:bg-blue-600";
+    } else if (status.includes("선별") || status.includes("검증")) {
+      badgeClass = "bg-yellow-500 hover:bg-yellow-600";
+    }
+    
     return (
-      <Badge className="bg-green-500 hover:bg-green-600">
+      <Badge className={badgeClass}>
         {status}
       </Badge>
     );
