@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -45,7 +44,6 @@ export interface DeclarationFormData {
   declarationNumber: string;
   declarationDate: string;
   
-  // 공통 필드
   company: string;
   businessNumber: string;
   hsCode: string;
@@ -65,7 +63,6 @@ export interface DeclarationFormData {
   freightAmount?: string;
   insuranceAmount?: string;
   
-  // 수입신고 관련 필드
   declarerName: string;
   declarerCode: string;
   customsOffice?: string;
@@ -117,53 +114,58 @@ export interface DeclarationFormData {
   portDischarge?: string;
   containerNumber?: string;
   sealNumber?: string;
-  
-  // 수출신고 관련 필드
-  declarantName?: string;
-  declarantCode?: string;
-  customsOfficeDept?: string;
-  exportAgent?: string;
-  exportAgentCode?: string;
-  manufacturer?: string;
-  manufacturerCode?: string;
-  buyerName?: string;
-  buyerCode?: string;
-  destinationCountry?: string;
-  loadingCountryExport?: string;
-  expectedBondedArea?: string;
-  itemLocation?: string;
-  itemNameEng?: string;
-  tradeNameEng?: string;
-  modelSpecEng?: string;
-  invoiceNumber?: string;
-  exportQuantity?: string;
-  exportUnit?: string;
-  unitPrice?: string;
-  netWeightExport?: string;
-  amountExport?: string;
-  totalWeightExport?: string;
-  totalPackagesExport?: string;
-  exportDeclarationType?: string;
-  csTypeExport?: string;
-  paymentMethodExport?: string;
-  totalDeclaredPrice?: string;
-  freightAmountExport?: string;
-  insuranceAmountExport?: string;
-  incotermsCurrencyAmount?: string;
-  refundApplication?: string;
-  originCriteriaExport?: string;
-  warehouseLocation?: string;
-  shipperName?: string;
-  consigneeName?: string;
 }
 
-interface SavedDeclaration {
+export interface SavedDeclaration {
   id: string;
   name: string;
   date: string;
   formData: DeclarationFormData;
   documents?: DocumentFile[];
 }
+
+export interface CustomsClearanceStatus {
+  code: string;
+  description: string;
+  completed: boolean;
+  timestamp?: string;
+}
+
+const importClearanceSteps: Partial<Record<string, string>> = {
+  "11": "신고서수신",
+  "12": "신고서접수",
+  "13": "고지서발행",
+  "14": "신고서접수통보",
+  "20": "전산선별완료",
+  "21": "전산선별적용",
+  "22": "AI전자통관고정",
+  "31": "현장선별대기",
+  "32": "현장선별담당자배부",
+  "33": "현장선별고정",
+  "34": "현장선별완료",
+  "41": "담당자배부",
+  "42": "선별결과통보",
+  "43": "심사",
+  "44": "결재",
+  "45": "결재통보",
+  "51": "신고수리대기",
+  "52": "신고수리",
+  "53": "신고수리통보"
+};
+
+const exportClearanceSteps: Partial<Record<string, string>> = {
+  "1": "수출신고서 수신",
+  "2": "사전검증",
+  "3": "접수통보",
+  "4": "C/S 완료",
+  "5": "현장선별",
+  "6": "배부완료",
+  "7": "선별결과통보",
+  "8": "통관보류",
+  "9": "심사완료",
+  "10": "신고수리",
+  "11": "수리통보"
+};
 
 const DeclarationPage: React.FC = () => {
   const { toast } = useToast();
@@ -177,6 +179,7 @@ const DeclarationPage: React.FC = () => {
   const [loadModalOpen, setLoadModalOpen] = useState(false);
   const [savedDeclarations, setSavedDeclarations] = useState<SavedDeclaration[]>([]);
   const [cameFromSimulation, setCameFromSimulation] = useState(false);
+  const [clearanceStatus, setClearanceStatus] = useState<CustomsClearanceStatus[]>([]);
 
   const [documents, setDocuments] = useState<DocumentFile[]>([
     { name: 'Commercial Invoice', file: null, required: true, status: 'pending', type: 'invoice' },
@@ -251,7 +254,6 @@ const DeclarationPage: React.FC = () => {
         }
         
         if (documentType === 'other') {
-          // Add a new document instead of modifying an existing one
           setDocuments(prev => [
             ...prev,
             { 
@@ -276,7 +278,6 @@ const DeclarationPage: React.FC = () => {
           });
         }
         
-        // Check if any required document is uploaded
         setDocumentsReady(true);
       }
       
@@ -325,7 +326,6 @@ const DeclarationPage: React.FC = () => {
   };
 
   const handleDeleteDocument = (index: number) => {
-    // Check if the index is valid
     if (index < 0 || index >= documents.length) {
       console.error('Invalid document index:', index);
       return;
@@ -412,6 +412,20 @@ const DeclarationPage: React.FC = () => {
         setTimeout(() => {
           setIsScanning(false);
           
+          const declarationType = formData.declarationType || "import";
+          const steps = declarationType === "import" ? importClearanceSteps : exportClearanceSteps;
+          
+          const initialStatus: CustomsClearanceStatus[] = Object.entries(steps)
+            .slice(0, 2)
+            .map(([code, description], index) => ({
+              code,
+              description,
+              completed: true,
+              timestamp: new Date(Date.now() - (1 - index) * 60000).toISOString()
+            }));
+            
+          setClearanceStatus(initialStatus);
+          
           setFormData(prev => ({
             ...prev,
             declarerName: prev.declarerName || "KOREA TRADE CO., LTD.",
@@ -435,7 +449,8 @@ const DeclarationPage: React.FC = () => {
             grossWeight: prev.grossWeight || "1050",
             netWeight: prev.netWeight || "1000",
             containerNumber: prev.containerNumber || "CSQU3054387",
-            sealNumber: prev.sealNumber || "SL98765432"
+            sealNumber: prev.sealNumber || "SL98765432",
+            declarationNumber: `7-1-${new Date().getFullYear()}-${Math.floor(1000000 + Math.random() * 9000000)}`
           }));
           
           toast({
@@ -563,9 +578,33 @@ const DeclarationPage: React.FC = () => {
   };
   
   const handleSubmit = () => {
+    const declarationType = formData.declarationType || "import";
+    const steps = declarationType === "import" ? importClearanceSteps : exportClearanceSteps;
+    
+    const currentStepsCount = clearanceStatus.length;
+    const allStepsEntries = Object.entries(steps);
+    
+    if (currentStepsCount < allStepsEntries.length) {
+      const nextStep = allStepsEntries[currentStepsCount];
+      
+      if (nextStep) {
+        const updatedStatus = [
+          ...clearanceStatus,
+          {
+            code: nextStep[0],
+            description: nextStep[1],
+            completed: true,
+            timestamp: new Date().toISOString()
+          }
+        ];
+        
+        setClearanceStatus(updatedStatus);
+      }
+    }
+    
     toast({
       title: "제출 완료",
-      description: "신고서가 제출되었습니다.",
+      description: "신고서가 제출되었습니다. 통관 절차가 진행됩니다.",
     });
   };
 
@@ -603,7 +642,6 @@ const DeclarationPage: React.FC = () => {
     }
   };
 
-  // Function to safely access document at index, checking bounds first
   const safeGetDocument = (index: number) => {
     if (index >= 0 && index < documents.length) {
       return documents[index];
@@ -616,6 +654,32 @@ const DeclarationPage: React.FC = () => {
       <div className="max-w-5xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-primary">신고서 작성</h1>
+        </div>
+        
+        <div className="mb-8 p-4 bg-muted/40 rounded-lg border">
+          <h2 className="text-lg font-semibold mb-4">통관 진행 상태</h2>
+          <div className="space-y-2">
+            {clearanceStatus.length > 0 ? (
+              clearanceStatus.map((status, index) => (
+                <div key={status.code} className="flex items-center">
+                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white mr-3">
+                    {index + 1}
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-medium">{status.description}</div>
+                    {status.timestamp && (
+                      <div className="text-sm text-muted-foreground">
+                        {new Date(status.timestamp).toLocaleString('ko-KR')}
+                      </div>
+                    )}
+                  </div>
+                  <FileCheck className="h-5 w-5 text-green-500" />
+                </div>
+              ))
+            ) : (
+              <div className="text-muted-foreground">신고서 작성 후 통관 절차가 시작됩니다.</div>
+            )}
+          </div>
         </div>
         
         <Card className="mb-8">
@@ -649,7 +713,6 @@ const DeclarationPage: React.FC = () => {
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {/* First document - Only render if it exists */}
                 {safeGetDocument(0) && (
                   <div className="flex items-center justify-between border bg-white p-3 rounded-md">
                     <div className="flex items-center overflow-hidden">
@@ -708,7 +771,6 @@ const DeclarationPage: React.FC = () => {
                   </div>
                 )}
 
-                {/* Second document - Only render if it exists */}
                 {safeGetDocument(1) && (
                   <div className="flex items-center justify-between border bg-white p-3 rounded-md">
                     <div className="flex items-center overflow-hidden">
@@ -767,7 +829,6 @@ const DeclarationPage: React.FC = () => {
                   </div>
                 )}
 
-                {/* Third document - Only render if it exists */}
                 {safeGetDocument(2) && (
                   <div className="flex items-center justify-between border bg-white p-3 rounded-md">
                     <div className="flex items-center overflow-hidden">
@@ -826,7 +887,6 @@ const DeclarationPage: React.FC = () => {
                   </div>
                 )}
 
-                {/* Additional documents */}
                 {documents.slice(3).map((doc, index) => (
                   <div key={index + 3} className="flex items-center justify-between border bg-white p-3 rounded-md">
                     <div className="flex items-center overflow-hidden">
@@ -1015,4 +1075,3 @@ const DeclarationPage: React.FC = () => {
 };
 
 export default DeclarationPage;
-
